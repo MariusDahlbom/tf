@@ -1,3 +1,16 @@
-h2 ALLA dina TODOS #{session[:id]}
-- todos.each do |todo|
+h2 Alla dina produkter #{session[:id]}
+- product_result.each do |todo|
   p = todo["content"]
+
+  h1 Alla produkter
+
+
+  ol
+    - product_result.each do |product|
+      li 
+        a href="/todos/#{product['product_id']}" #{product["product_name"]}
+        a href="/todos/#{product['product_id']}/edit"
+        form method="POST" action="/todos/#{product['product_id']}/update"
+        input type="submit" value="Update"
+        form method="POST" action="/todos/#{product['product_id']}/delete"
+          input type="submit" value="Delete" 
