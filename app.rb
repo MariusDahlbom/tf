@@ -71,8 +71,6 @@ get('/products') do
   p result
   slim(:"user_products/index",locals:{product_result:result})
 
-
-
 end
 
 get('/products/new') do
@@ -89,10 +87,11 @@ post('/products/new') do
 end
 
 post('/products/:id/delete') do
-  id = params[:id].to_i
+  p "hej marius"
+  id = params[:product_id].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.execute("DELETE FROM products WHERE product_id = ?",id)
-  redirect('/products')
+  redirect ('/products')
 end
 
 post('/products/:id/update') do

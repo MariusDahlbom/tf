@@ -3,3 +3,7 @@ h2 Alla dina produkter #{session[:id]}
 - product_result.each do |product|
   h2 name: #{product["product_name"]}         genre id: #{product["genre_id"]} 
 
+
+  form method="POST" actions="products/#{product['product_id']}/delete"
+    input type="submit" value="Delete"
+
