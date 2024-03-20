@@ -1,4 +1,9 @@
-form action="/products/new" method="post"
-    input type="text" name="product_name" placeholder="Titel på produkt"
-    input type="text" name="genre_id" placeholder="id för genre"
-    input type="submit" value="Skapa produkt"
+form action="/products/#{result['product_id']}/update" method="post"
+    input type="text" name="product_name" value="#{result['product_name']}" placeholder="Titel på produkt"
+    select name="genre" 
+        option value="1" Arrigato
+        option value="2" Acne Studios
+        option value="3" Comme des garcons
+        option value="4" Scotch and Soda
+        option value="5" New Balance 
+    input type="submit" value="Edit produkt"

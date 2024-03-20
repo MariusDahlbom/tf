@@ -41,7 +41,7 @@ get('/user_products') do
   p id
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.results_as_hash = true
-  result = db.execute("SELECT * FROM users WHERE id = ?",id)
+  result = db.execute("SELECT * FROM products WHERE user_id = ?",id)
   slim(:"user_products/index",locals:{product_result:result})
 end
 
@@ -82,32 +82,36 @@ post('/products/new') do
   genre  = params[:genre].to_i
   p "vi fick in datan #{product_name} och #{genre}"
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
-  db.execute("INSERT INTO products (product_name, genre_id) VALUES (?,?)", product_name, genre)
+  db.execute("INSERT INTO products (product_name, genre_id, user_id) VALUES (?,?, ?)", product_name, genre, session[:id])
   redirect('/products')
 end
 
 post('/products/:id/delete') do
   p "hej marius"
-  id = params[:product_id].to_i
+  id = params[:id].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.execute("DELETE FROM products WHERE product_id = ?",id)
   redirect ('/products')
 end
 
 post('/products/:id/update') do
-  id = params[:product_id].to_i
+  p "hej Marre"
+  id = params[:id].to_i
   product_name = params[:product_name]
-  genre_id = params[:genre_id].to_i
+  genre_id = params[:genre].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
-  db.execute("UPDATE products SET product_name=?,genre_id=?WHERE product_id = ?",product_name,genre_id,id)
+  db.execute("UPDATE products SET product_name = ?,genre_id = ? WHERE product_id = ?",product_name,genre_id,id)
   redirect('/products')
 end
 
 get('/products/:id/edit') do
-  id = params[:product_id].to_i
+  p "hej Calle"
+  id = params[:id].to_i
+  p id
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.results_as_hash = true
-  result = db.execute("SELECT * FROM products WHERE product_id = ?",id).first
+  result = db.execute("SELECT * FROM products WHERE product_id = ?", id).first
+  p result
   slim(:"/user_products/edit",locals:{result:result})
 end
 
