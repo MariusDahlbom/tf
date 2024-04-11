@@ -3,6 +3,7 @@ require 'slim'
 require 'sqlite3'
 require 'bcrypt'
 require 'sinatra/reloader'
+require 'sinatra/flash'
 
 enable :sessions
 
@@ -10,11 +11,21 @@ get('/') do
   slim(:register)
 end
 
+before('/protected/*')do
+p "Du behöver logga in"
+  if session[:id] == nil
+    redirect '/showlogin'
+  end
+end
+
+get('/logga_ut')do
+ session.clear
+ redirect '/showlogin'
+end
+
 get('/showlogin') do
   slim(:login)
 end
-
-
 
 post('/login') do
   username = params[:name]
@@ -30,41 +41,50 @@ post('/login') do
   
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
-    redirect('/user_products')
+    redirect('/protected/user_products')
   else
-    "FEL LÖSEN!"
+    flash[:notice] = "Fel lösen"
+    redirect('/showlogin')
   end
 end
 
-get('/user_products') do
+get('/protected/user_products') do
   id = session[:id].to_i
   p id
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.results_as_hash = true
   result = db.execute("SELECT * FROM products WHERE user_id = ?",id)
   slim(:"user_products/index",locals:{product_result:result})
+
 end
 
 post('/users/new') do
+  db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   username = params[:name]
   password = params[:password]
   password_confirm = params[:password_confirm]
 
-  if (password == password_confirm)
-    #lägg till användare
-    password_digest = BCrypt::Password.create(password)
-    db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
-    db.execute("INSERT INTO users (name,password) VALUES (?,?)",username,password_digest)
-    redirect('/')
-
-
-  else
-    #felhantering
-    "Lösenorden matchade inte"
+  result = db.execute("SELECT * FROM users WHERE name=?",username)
+  p result
+    
+  if result.include?([username])
+    flash[:notice] = "bajs"
   end
+
+    if (password == password_confirm)
+      #lägg till användare
+      password_digest = BCrypt::Password.create(password)
+      db.execute("INSERT INTO users (name,password) VALUES (?,?)",username,password_digest)
+      redirect('/')
+
+
+    else
+      #felhantering
+      "Lösenorden matchade inte"
+    end
 end
 
-get('/products') do
+get('/protected/products') do
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.results_as_hash = true
   result = db.execute("SELECT * FROM products")
@@ -73,17 +93,17 @@ get('/products') do
 
 end
 
-get('/products/new') do
+get('/protected/products/new') do
   slim(:"user_products/new")
 end
 
-post('/products/new') do
+post('/protected/products/new') do
   product_name = params[:product_name]
   genre  = params[:genre].to_i
   p "vi fick in datan #{product_name} och #{genre}"
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.execute("INSERT INTO products (product_name, genre_id, user_id) VALUES (?,?, ?)", product_name, genre, session[:id])
-  redirect('/products')
+  redirect('/protected/products')
 end
 
 post('/products/:id/delete') do
@@ -91,7 +111,7 @@ post('/products/:id/delete') do
   id = params[:id].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.execute("DELETE FROM products WHERE product_id = ?",id)
-  redirect ('/products')
+  redirect ('/protected/products')
 end
 
 post('/products/:id/update') do
@@ -101,7 +121,7 @@ post('/products/:id/update') do
   genre_id = params[:genre].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.execute("UPDATE products SET product_name = ?,genre_id = ? WHERE product_id = ?",product_name,genre_id,id)
-  redirect('/products')
+  redirect('/protected/products')
 end
 
 get('/products/:id/edit') do
