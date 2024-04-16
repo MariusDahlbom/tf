@@ -106,7 +106,7 @@ post('/protected/products/new') do
   redirect('/protected/products')
 end
 
-post('/products/:id/delete') do
+post('/protected/products/:id/delete') do
   p "hej marius"
   id = params[:id].to_i
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
@@ -114,7 +114,7 @@ post('/products/:id/delete') do
   redirect ('/protected/products')
 end
 
-post('/products/:id/update') do
+post('/protected/products/:id/update') do
   p "hej Marre"
   id = params[:id].to_i
   product_name = params[:product_name]
@@ -124,7 +124,7 @@ post('/products/:id/update') do
   redirect('/protected/products')
 end
 
-get('/products/:id/edit') do
+get('/protected/products/:id/edit') do
   p "hej Calle"
   id = params[:id].to_i
   p id

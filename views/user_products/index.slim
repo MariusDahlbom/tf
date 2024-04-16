@@ -8,6 +8,6 @@ h2 User id #{session[:id]}
   form method="POST" action="products/#{product['product_id']}/delete"
     input type="submit" value="Delete"
 
-  a href="/products/#{product["product_id"]}/edit" Edit
+  a href="/protected/products/#{product["product_id"]}/edit" Edit
   
 
