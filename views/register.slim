@@ -5,3 +5,6 @@ form action="users/new" method="POST"
     input type="password" name="password" placeholder="Enter password"
     input type="password" name="password_confirm" placeholder="Enter password Again"
     input type="submit" value="Registrera ny Användare"
+
+       -  if flash[:notice]
+            p.notice = flash[:notice]

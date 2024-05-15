@@ -46,6 +46,8 @@ post('/login') do
     flash[:notice] = "Fel lösen"
     redirect('/showlogin')
   end
+
+  
 end
 
 get('/protected/user_products') do
@@ -60,34 +62,47 @@ end
 
 post('/users/new') do
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
+ 
+
   username = params[:name]
   password = params[:password]
   password_confirm = params[:password_confirm]
 
-  result = db.execute("SELECT * FROM users WHERE name=?",username)
+  result = db.execute("SELECT name FROM users WHERE name=?",username)
+
   p result
     
-  if result.include?([username])
-    flash[:notice] = "bajs"
-  end
+    if username == "" || password == "" || password_confirm == ""
+        flash[:notice] = "Rutorna måste vara ifyllda"
 
-    if (password == password_confirm)
-      #lägg till användare
+    elsif result.include?([username])
+        flash[:notice] = "Användarnamnet finns redan"
+
+    elsif (password == password_confirm)
+
       password_digest = BCrypt::Password.create(password)
       db.execute("INSERT INTO users (name,password) VALUES (?,?)",username,password_digest)
       redirect('/')
 
 
+
     else
-      #felhantering
+ 
       "Lösenorden matchade inte"
     end
+    redirect ('/')
+
 end
 
 get('/protected/products') do
   db = SQLite3::Database.new('db/dbSlutprojekt2024.db')
   db.results_as_hash = true
-  result = db.execute("SELECT * FROM products")
+  result = db.execute("
+  SELECT genres.genre_name, products.product_name
+  FROM genres
+  INNER JOIN products ON products.genre_id = genres.genre_id;
+  ")
+  
   p result
   slim(:"user_products/index",locals:{product_result:result})
 
